@@ -1,3 +1,4 @@
+import { Store } from "../utils/Store";
 import {
   AppBar,
   Link,
@@ -7,13 +8,19 @@ import {
   Typography,
   Container,
   Box,
+  Switch,
 } from "@mui/material";
 import { createTheme } from "@mui/material/styles";
+import jsCookie from "js-cookie";
 import Head from "next/head";
 import NextLink from "next/link";
+import { useContext } from "react";
 import classes from "../utils/classes";
 
 export default function Layout({ title, description, children }) {
+  const { state, dispatch } = useContext(Store);
+  const { darkMode } = state;
+
   const theme = createTheme({
     components: {
       MuiLink: {
@@ -34,16 +41,22 @@ export default function Layout({ title, description, children }) {
         margin: "1rem 0",
       },
     },
-    // palette: {
-    //   mode: darkMode ? "dark" : "light",
-    //   primary: {
-    //     main: "#f0c000",
-    //   },
-    //   secondary: {
-    //     main: "#208080",
-    //   },
-    // },
+    palette: {
+      mode: darkMode ? "dark" : "light",
+      primary: {
+        main: "#f0c000",
+      },
+      secondary: {
+        main: "#208080",
+      },
+    },
   });
+
+  const darkModeChangeHandler = () => {
+    dispatch({ type: darkMode ? 'DARK_MODE_OFF' : 'DARK_MODE_ON' });
+    const newDarkMode = !darkMode;
+    jsCookie.set('darkMode', newDarkMode ? 'ON' : 'OFF');
+  };
 
   return (
     <>
@@ -56,13 +69,18 @@ export default function Layout({ title, description, children }) {
         <CssBaseline />
         <AppBar position="static" sx={classes.appbar}>
           <Toolbar sx={classes.toolbar}>
-            <NextLink href="/" passHref>
-              <Link>
-                <Typography sx={classes.brand} variant="h1">
-                  amazona
-                </Typography>
-              </Link>
-            </NextLink>
+            <Box display="flex" alignItems="center">
+              <NextLink href="/" passHref>
+                <Link>
+                  <Typography sx={classes.brand} variant="h1">
+                    amazona
+                  </Typography>
+                </Link>
+              </NextLink>
+            </Box>
+            <Box>
+              <Switch checked={darkMode} onChange={darkModeChangeHandler}/>
+            </Box>
           </Toolbar>
         </AppBar>
         <Container sx={classes.main} component="main">
