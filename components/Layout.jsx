@@ -9,7 +9,7 @@ import {
   Container,
   Box,
   Switch,
-  Badge
+  Badge,
 } from "@mui/material";
 import { createTheme } from "@mui/material/styles";
 import jsCookie from "js-cookie";
@@ -88,12 +88,17 @@ export default function Layout({ title, description, children }) {
                       <Badge
                         color="secondary"
                         badgeContent={cart.cartItems.length}
-                      >Cart</Badge>
+                      >
+                        Cart
+                      </Badge>
                     ) : (
                       "Cart"
                     )}
                   </Typography>
                 </Link>
+              </NextLink>
+              <NextLink href="/login" passHref>
+                <Link>Login</Link>
               </NextLink>
             </Box>
           </Toolbar>
