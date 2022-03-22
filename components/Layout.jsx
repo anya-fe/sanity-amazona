@@ -9,6 +9,7 @@ import {
   Container,
   Box,
   Switch,
+  Badge
 } from "@mui/material";
 import { createTheme } from "@mui/material/styles";
 import jsCookie from "js-cookie";
@@ -19,7 +20,7 @@ import classes from "../utils/classes";
 
 export default function Layout({ title, description, children }) {
   const { state, dispatch } = useContext(Store);
-  const { darkMode } = state;
+  const { darkMode, cart } = state;
 
   const theme = createTheme({
     components: {
@@ -53,9 +54,9 @@ export default function Layout({ title, description, children }) {
   });
 
   const darkModeChangeHandler = () => {
-    dispatch({ type: darkMode ? 'DARK_MODE_OFF' : 'DARK_MODE_ON' });
+    dispatch({ type: darkMode ? "DARK_MODE_OFF" : "DARK_MODE_ON" });
     const newDarkMode = !darkMode;
-    jsCookie.set('darkMode', newDarkMode ? 'ON' : 'OFF');
+    jsCookie.set("darkMode", newDarkMode ? "ON" : "OFF");
   };
 
   return (
@@ -79,7 +80,21 @@ export default function Layout({ title, description, children }) {
               </NextLink>
             </Box>
             <Box>
-              <Switch checked={darkMode} onChange={darkModeChangeHandler}/>
+              <Switch checked={darkMode} onChange={darkModeChangeHandler} />
+              <NextLink href="cart" passHref>
+                <Link>
+                  <Typography component="span">
+                    {cart.cartItems.length > 0 ? (
+                      <Badge
+                        color="secondary"
+                        badgeContent={cart.cartItems.length}
+                      >Cart</Badge>
+                    ) : (
+                      "Cart"
+                    )}
+                  </Typography>
+                </Link>
+              </NextLink>
             </Box>
           </Toolbar>
         </AppBar>
