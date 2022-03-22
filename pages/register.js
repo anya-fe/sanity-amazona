@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import Form from "../components/Form";
 import Layout from "../components/Layout";
@@ -11,22 +11,52 @@ import {
   Typography,
 } from "@mui/material";
 import NextLink from "next/link";
+import { useSnackbar } from "notistack";
+import axios from "axios";
+import { useRouter } from "next/router";
+import jsCookie from "js-cookie";
+import { Store } from "../utils/Store";
 
 export default function RegisterScreen() {
+  const { state, dispatch } = useContext(Store);
+  const { userInfo } = state;
+  const router = useRouter();
+
+  useEffect(() => {
+    if (userInfo) {
+      router.push("/");
+    }
+  }, [router, userInfo]);
+
+  const { enqueueSnackbar } = useSnackbar();
+
   const {
     handleSubmit,
     control,
     formState: { errors },
   } = useForm();
 
-  const submitHandler = async ({
-    name,
-    email,
-    password,
-    confirmPassword,
-  }) => {};
+  const submitHandler = async ({ name, email, password, confirmPassword }) => {
+    if (password !== confirmPassword) {
+      enqueueSnackbar("Passwords don't match", { varint: "error" });
+      return;
+    }
+
+    try {
+      const { data } = await axios.post("/api/users/register", {
+        name,
+        email,
+        password,
+      });
+      dispatch({ type: "USER_LOGIN", payload: data });
+      jsCookie.set("userInfo", JSON.stringify(data));
+      router.push("/");
+    } catch (err) {
+      enqueueSnackbar(err.message, { varint: "error" });
+    }
+  };
   return (
-    <Layout title="register">
+    <Layout title="Register">
       <Form onSubmit={handleSubmit(submitHandler)}>
         <Typography component="h1" variant="h1">
           Register
@@ -134,14 +164,14 @@ export default function RegisterScreen() {
                   fullWidth
                   id="confirmPassword"
                   label="Confirm Password"
-                  inputProps={{ type: "confirmPassword" }}
-                  error={Boolean(errors.password)}
+                  inputProps={{ type: 'password' }}
+                  error={Boolean(errors.confirmPassword)}
                   helperText={
                     errors.confirmPassword
-                      ? errors.confirmPassword.type === "minLength"
-                        ? "Confirm Password length is more than 5"
-                        : "Confirm Password is required"
-                      : ""
+                      ? errors.confirmPassword.type === 'minLength'
+                        ? 'Confirm Password length is more than 5'
+                        : 'Confirm Password is required'
+                      : ''
                   }
                   {...field}
                 ></TextField>
